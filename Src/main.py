@@ -7,10 +7,13 @@ class MyWindow(Tk):
         super().__init__()
         #Tk.__init__(self)
 
+        self.acc_list = []
         self.list_row_counter = 1
         self.bg_lightgray ="#858585"
-
         self.account = StringVar(value="Example : TonyStar-21880")
+
+        self.load_file()
+
 
         #header
         self.grid_columnconfigure(0, weight=0)
@@ -60,6 +63,7 @@ class MyWindow(Tk):
         owner = Label(self.list_frame, text="Owner", fg="White", bg=self.bg_lightgray, font=("Calibri", 15))
         owner.grid(column=6, row=0, padx=40)
 
+        self.populate_grid()
 
         self.add_entry.bind("<FocusIn>", self.add_entry_click_delete)
         
@@ -67,7 +71,7 @@ class MyWindow(Tk):
 
         self.title("Overwatch Rank Calculator")
         self.configure(bg="#333333", padx=20, pady=20)
-        self.geometry("1600x800")
+        self.geometry("1920x1080")
         
 
 
@@ -106,12 +110,13 @@ class MyWindow(Tk):
 
         # Create new row for each acc
         for col, content in enumerate(row_data):
-            button = Button(self.list_frame, text=X, fg="White", bg=self.bg_lightgray, font=("Calibri", 15), command=lambda r=curr_row: self.delete_acc(r))    #delete button
+            button = Button(self.list_frame, text="X", fg="White", bg=self.bg_lightgray, font=("Calibri", 15), command=lambda r=curr_row: self.delete_acc(r))    #delete button
             button.grid(row=curr_row, column=0, sticky="nsew")
             label = Label(self.list_frame, text=content, fg="White", bg=self.bg_lightgray, font=("Calibri", 15))
             label.grid(row=curr_row, column=col+1, sticky="nsew")
         self.list_row_counter += 1
         self.list_frame.grid_rowconfigure(curr_row, weight=1)
+        self.save_file(row_data)
 
 
 # Function when add button is clicked
@@ -129,14 +134,13 @@ class MyWindow(Tk):
             print("Failed to retrieve player data.")
     
 
+
     #delete row in acc list
     def delete_acc(self, row):
         for widget in self.list_frame.winfo_children():
             grid_data = widget.grid_info()
             if grid_data.get('row') == row:
                 widget.destroy()
-            
-
 
     #auto delete default text of entry when clicked
     def add_entry_click_delete(self, event):
@@ -155,9 +159,67 @@ class MyWindow(Tk):
             self.add_entry_default_text(event)
             self.focus()
 
+
+
+    # Saving data in a json file
+    def save_file(self, data):
+        write_data = {
+            "Game": data[0],
+            "username": data[1],
+            "tank": data[2],
+            "dps": data[3],
+            "support": data[4],
+            "owner": data[5],
+        }
+        self.acc_list.append(write_data)
+        with open("save.json", mode="w", encoding="utf-8") as file:
+            json.dump(self.acc_list, file, indent=4)
+        with open("save.json", encoding="utf-8") as file:
+            content = json.load(file)
     
+
+
+    # Load file
+    def load_file(self):
+        try:
+            with open("save.json", encoding="utf-8") as file:
+                self.acc_list = json.load(file)
+        except FileNotFoundError:
+            print("No file, start from []")
+            self.acc_list = []
+        except json.JSONDecodeError:
+            self.acc_list = []
     
+
+    #Load file data into the grid
+    def populate_grid(self):
+        self.list_row_counter = 1
+        for player_data in self.acc_list:
+            row_data = [
+            player_data["Game"],
+            player_data["username"],
+            player_data["tank"],
+            player_data["dps"],
+            player_data["support"],
+            player_data["owner"],
+        ]
+            self._create_row_widgets(row_data)
+        
+
+    # Seperate function to avoid infinite calls from populate_grid
+    def _create_row_widgets(self, row_data):
+        curr_row = self.list_row_counter
     
+        # Create new row for each acc
+        for col, content in enumerate(row_data):
+            button = Button(self.list_frame, text="X", fg="White", bg=self.bg_lightgray, font=("Calibri", 15), command=lambda r=curr_row: self.delete_acc(r))
+            button.grid(row=curr_row, column=0, sticky="nsew")
+            label = Label(self.list_frame, text=content, fg="White", bg=self.bg_lightgray, font=("Calibri", 15))
+            label.grid(row=curr_row, column=col+1, sticky="nsew")
+        
+        self.list_row_counter += 1
+        self.list_frame.grid_rowconfigure(curr_row, weight=1)
+
     #API PART
     BASE_URL = "https://overfast-api.tekrop.fr"
     
