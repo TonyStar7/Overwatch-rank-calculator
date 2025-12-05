@@ -1,114 +1,156 @@
 [
     {
         "Game": "OW",
+        "Tag": "#21880",
         "username": "TonyStar",
-        "tank": "MASTER 5",
+        "tank": "MASTER 1",
         "dps": "GRANDMASTER 5",
         "support": "DIAMOND 5",
-        "owner": "N/A"
+        "tier_tank": 1,
+        "tier_damage": 5,
+        "tier_support": 5
     },
     {
         "Game": "OW",
-        "username": "AlyThde",
-        "tank": "UNRANKED",
-        "dps": "UNRANKED",
-        "support": "MASTER 5",
-        "owner": "N/A"
-    },
-    {
-        "Game": "OW",
-        "username": "LaserLegends",
-        "tank": "UNRANKED",
-        "dps": "UNRANKED",
-        "support": "UNRANKED",
-        "owner": "N/A"
-    },
-    {
-        "Game": "OW",
-        "username": "Desiray",
-        "tank": "UNRANKED",
-        "dps": "UNRANKED",
-        "support": "MASTER 2",
-        "owner": "N/A"
-    },
-    {
-        "Game": "OW",
+        "Tag": "#21201",
         "username": "Frieren",
         "tank": "MASTER 4",
         "dps": "MASTER 2",
         "support": "MASTER 3",
-        "owner": "N/A"
+        "tier_tank": 4,
+        "tier_damage": 2,
+        "tier_support": 3
     },
     {
         "Game": "OW",
-        "username": "KDR",
-        "tank": "MASTER 2",
-        "dps": "MASTER 3",
-        "support": "MASTER 5",
-        "owner": "N/A"
-    },
-    {
-        "Game": "OW",
-        "username": "Nog",
+        "Tag": "#2313",
+        "username": "AlyThde",
         "tank": "UNRANKED",
-        "dps": "MASTER 5",
-        "support": "UNRANKED",
-        "owner": "N/A"
+        "dps": "UNRANKED",
+        "support": "MASTER 5",
+        "tier_tank": 0,
+        "tier_damage": 0,
+        "tier_support": 5
     },
     {
         "Game": "OW",
-        "username": "TecOpe",
-        "tank": "MASTER 3",
-        "dps": "MASTER 3",
-        "support": "UNRANKED",
-        "owner": "N/A"
-    },
-    {
-        "Game": "OW",
+        "Tag": "#21131",
         "username": "WILLIAMPEEL",
         "tank": "UNRANKED",
         "dps": "MASTER 3",
         "support": "MASTER 4",
-        "owner": "N/A"
+        "tier_tank": 0,
+        "tier_damage": 3,
+        "tier_support": 4
     },
     {
         "Game": "OW",
-        "username": "Zapp",
-        "tank": "DIAMOND 3",
-        "dps": "MASTER 2",
-        "support": "MASTER 3",
-        "owner": "N/A"
-    },
-    {
-        "Game": "OW",
-        "username": "Zerh",
-        "tank": "DIAMOND 2",
-        "dps": "MASTER 2",
-        "support": "MASTER 4",
-        "owner": "N/A"
-    },
-    {
-        "Game": "OW",
-        "username": "Cassidy",
-        "tank": "MASTER 2",
-        "dps": "MASTER 4",
-        "support": "MASTER 3",
-        "owner": "N/A"
-    },
-    {
-        "Game": "OW",
+        "Tag": "#21431",
         "username": "MushMush",
         "tank": "MASTER 5",
         "dps": "MASTER 5",
         "support": "MASTER 5",
-        "owner": "N/A"
+        "tier_tank": 5,
+        "tier_damage": 5,
+        "tier_support": 5
     },
     {
         "Game": "OW",
+        "Tag": "#21332",
+        "username": "KDR",
+        "tank": "MASTER 2",
+        "dps": "MASTER 3",
+        "support": "MASTER 2",
+        "tier_tank": 2,
+        "tier_damage": 3,
+        "tier_support": 2
+    },
+    {
+        "Game": "OW",
+        "Tag": "#21400",
+        "username": "Zerh",
+        "tank": "DIAMOND 2",
+        "dps": "MASTER 2",
+        "support": "MASTER 4",
+        "tier_tank": 2,
+        "tier_damage": 2,
+        "tier_support": 4
+    },
+    {
+        "Game": "OW",
+        "Tag": "#21547",
+        "username": "Zapp",
+        "tank": "DIAMOND 3",
+        "dps": "MASTER 2",
+        "support": "MASTER 3",
+        "tier_tank": 3,
+        "tier_damage": 2,
+        "tier_support": 3
+    },
+    {
+        "Game": "OW",
+        "Tag": "#21348",
+        "username": "Nog",
+        "tank": "UNRANKED",
+        "dps": "MASTER 5",
+        "support": "UNRANKED",
+        "tier_tank": 0,
+        "tier_damage": 5,
+        "tier_support": 0
+    },
+    {
+        "Game": "OW",
+        "Tag": "#21562",
         "username": "Kellyy",
         "tank": "UNRANKED",
         "dps": "UNRANKED",
         "support": "UNRANKED",
-        "owner": "N/A"
+        "tier_tank": 0,
+        "tier_damage": 0,
+        "tier_support": 0
+    },
+    {
+        "Game": "OW",
+        "Tag": "#21284",
+        "username": "Desiray",
+        "tank": "UNRANKED",
+        "dps": "UNRANKED",
+        "support": "MASTER 2",
+        "tier_tank": 0,
+        "tier_damage": 0,
+        "tier_support": 2
+    },
+    {
+        "Game": "OW",
+        "Tag": "#21686",
+        "username": "TecOpe",
+        "tank": "MASTER 3",
+        "dps": "MASTER 3",
+        "support": "UNRANKED",
+        "tier_tank": 3,
+        "tier_damage": 3,
+        "tier_support": 0
+    },
+    {
+        "Game": "OW",
+        "Tag": "#2281",
+        "username": "LaserLegends",
+        "tank": "UNRANKED",
+        "dps": "UNRANKED",
+        "support": "UNRANKED",
+        "tier_tank": 0,
+        "tier_damage": 0,
+        "tier_support": 0
+    },
+    {
+        "Game": "OW",
+        "Tag": "#21877",
+        "username": "Cassidy",
+        "tank": "MASTER 2",
+        "dps": "MASTER 4",
+        "support": "MASTER 3",
+        "tier_tank": 2,
+        "tier_damage": 4,
+        "tier_support": 3
     }
 ]
