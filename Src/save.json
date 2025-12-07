@@ -5,10 +5,10 @@
         "username": "TonyStar",
         "tank": "MASTER 1",
         "dps": "GRANDMASTER 5",
-        "support": "DIAMOND 5",
+        "support": "DIAMOND 3",
         "tier_tank": 1,
         "tier_damage": 5,
-        "tier_support": 5
+        "tier_support": 3
     },
     {
         "Game": "OW",

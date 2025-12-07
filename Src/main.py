@@ -2,12 +2,12 @@ from tkinter import *
 import requests
 import json
 import os
-import operator as op
 
 class MyWindow(Tk):
     def __init__(self):
         super().__init__()
-        
+
+        self.BASE_URL = "https://overfast-api.tekrop.fr"
         self.json_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "save.json")
         self.acc_list = []
         self.sub_acc_list = []
@@ -53,7 +53,7 @@ class MyWindow(Tk):
         refresh_frame.grid(row=0, column=2, sticky="nsew") #Put in grid on the right
 
         #add refresh button
-        refresh_button = Button(refresh_frame, text="REFRESH", padx=40, pady=5)
+        refresh_button = Button(refresh_frame, text="REFRESH", padx=40, pady=5, command=self.refresh)
         refresh_button.grid(row=0, column=2, sticky="nsew")
 
 
@@ -212,6 +212,55 @@ class MyWindow(Tk):
         self.populate_grid(self.sub_acc_list)
         
 
+    def refresh(self):
+        updated_acc_list = []
+        for account in self.acc_list:
+            clean_tag = account["Tag"].replace("#", "")
+            player_id = f"{account["username"]}-{clean_tag}"
+            player_data = self.get_ow_player_data(player_id)
+
+            if player_data is None:
+                print(f"Skipping update for {player_id}. Keeping old data.")
+                updated_acc_list.append(account) # Keep the old data if refresh failed
+                continue
+            try:
+            # Call the info
+                role_data = player_data["competitive"]["pc"]
+
+                account_name = player_data["username"]
+                tank= self.rank_info(player_data, "tank")
+                print(tank)
+                tier_tank = role_data["tank"]["tier"] if tank not in ["UNRANKED", "PRIVATE"] else 0
+                damage= self.rank_info(player_data, "damage")
+                print(damage)
+                tier_damage = role_data["damage"]["tier"] if damage not in ["UNRANKED", "PRIVATE"] else 0
+                support= self.rank_info(player_data, "support")
+                print(support)
+                tier_support = role_data["support"]["tier"] if support not in ["UNRANKED", "PRIVATE"] else 0
+        
+        # Put infos in a list
+                updated_data = {
+                    "Game": "OW",
+                    "Tag": account["Tag"],
+                    "username": account_name,
+                    "tank": tank,
+                    "dps": damage,
+                    "support": support,
+                    "tier_tank": tier_tank,
+                    "tier_damage": tier_damage,
+                    "tier_support": tier_support
+                }
+                updated_acc_list.append(updated_data)
+            except KeyError as e:
+                print(f"Error processing data for {player_id}: Missing key {e}. Keeping old data.")
+                updated_acc_list.append(account)
+
+        self.acc_list = updated_acc_list
+        self.sub_acc_list = self.acc_list.copy()
+
+        self._save_data_to_file()
+        self.rebuild_grid()
+    
 
     # Save list in json file
     def _save_data_to_file(self):
@@ -270,8 +319,16 @@ class MyWindow(Tk):
             "tier_damage": data[7],
             "tier_support": data[8]
         }
-        self.acc_list.append(write_data)
-        self.sub_acc_list.append(write_data)
+        tag_exists = any(acc['Tag'] == write_data['Tag'] for acc in self.acc_list)
+        if not tag_exists:
+            self.acc_list.append(write_data)
+            self.sub_acc_list.append(write_data)
+        else:
+            for i, acc in enumerate(self.acc_list):
+                if acc["Tag"] == write_data["Tag"]:
+                    self.acc_list[i] = write_data            #replace the account data with the new one
+                    break
+            self.sub_acc_list = self.acc_list.copy()
         with open(self.json_file_path, mode="w", encoding="utf-8") as file:
             json.dump(self.acc_list, file, indent=4)
 
@@ -319,7 +376,7 @@ class MyWindow(Tk):
         self.list_frame.grid_rowconfigure(curr_row, weight=1)
 
     #API PART
-    BASE_URL = "https://overfast-api.tekrop.fr"
+    
     
     def get_ow_player_data(self, player_id):
         url =f"{self.BASE_URL}/players/{player_id}/summary"  #Access Player Summary
