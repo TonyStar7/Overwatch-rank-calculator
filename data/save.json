@@ -5,10 +5,10 @@
         "username": "TonyStar",
         "tank": "MASTER 1",
         "dps": "GRANDMASTER 5",
-        "support": "DIAMOND 3",
+        "support": "DIAMOND 1",
         "tier_tank": 1,
         "tier_damage": 5,
-        "tier_support": 3
+        "tier_support": 1
     },
     {
         "Game": "OW",
@@ -27,10 +27,10 @@
         "username": "AlyThde",
         "tank": "UNRANKED",
         "dps": "UNRANKED",
-        "support": "MASTER 5",
+        "support": "DIAMOND 1",
         "tier_tank": 0,
         "tier_damage": 0,
-        "tier_support": 5
+        "tier_support": 1
     },
     {
         "Game": "OW",
@@ -59,11 +59,11 @@
         "Tag": "#21332",
         "username": "KDR",
         "tank": "MASTER 2",
-        "dps": "MASTER 3",
-        "support": "MASTER 2",
+        "dps": "MASTER 2",
+        "support": "MASTER 3",
         "tier_tank": 2,
-        "tier_damage": 3,
-        "tier_support": 2
+        "tier_damage": 2,
+        "tier_support": 3
     },
     {
         "Game": "OW",
@@ -80,10 +80,10 @@
         "Game": "OW",
         "Tag": "#21547",
         "username": "Zapp",
-        "tank": "DIAMOND 3",
+        "tank": "DIAMOND 1",
         "dps": "MASTER 2",
         "support": "MASTER 3",
-        "tier_tank": 3,
+        "tier_tank": 1,
         "tier_damage": 2,
         "tier_support": 3
     },
@@ -135,11 +135,11 @@
         "Game": "OW",
         "Tag": "#2281",
         "username": "LaserLegends",
-        "tank": "UNRANKED",
-        "dps": "UNRANKED",
+        "tank": "MASTER 5",
+        "dps": "GRANDMASTER 5",
         "support": "UNRANKED",
-        "tier_tank": 0,
-        "tier_damage": 0,
+        "tier_tank": 5,
+        "tier_damage": 5,
         "tier_support": 0
     },
     {
@@ -152,5 +152,49 @@
         "tier_tank": 2,
         "tier_damage": 4,
         "tier_support": 3
+    },
+    {
+        "Game": "OW",
+        "Tag": "#2535",
+        "username": "nogigi",
+        "tank": "MASTER 1",
+        "dps": "MASTER 3",
+        "support": "MASTER 1",
+        "tier_tank": 1,
+        "tier_damage": 3,
+        "tier_support": 1
+    },
+    {
+        "Game": "OW",
+        "Tag": "#21696",
+        "username": "Tiph",
+        "tank": "UNRANKED",
+        "dps": "UNRANKED",
+        "support": "UNRANKED",
+        "tier_tank": 0,
+        "tier_damage": 0,
+        "tier_support": 0
+    },
+    {
+        "Game": "OW",
+        "Tag": "#2348",
+        "username": "schmiak",
+        "tank": "UNRANKED",
+        "dps": "PLATINUM 2",
+        "support": "UNRANKED",
+        "tier_tank": 0,
+        "tier_damage": 2,
+        "tier_support": 0
+    },
+    {
+        "Game": "OW",
+        "Tag": "#22993",
+        "username": "BitterSweet",
+        "tank": "UNRANKED",
+        "dps": "UNRANKED",
+        "support": "UNRANKED",
+        "tier_tank": 0,
+        "tier_damage": 0,
+        "tier_support": 0
     }
 ]
