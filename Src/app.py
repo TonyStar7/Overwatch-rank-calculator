@@ -30,6 +30,11 @@ class MyWindow(Tk):
 
         self.load_file()
 
+        self.cross_img = Image.open(os.path.join(IMG_DIR, "red_cross.png"))
+        self.cross_photo = ImageTk.PhotoImage(self.cross_img)
+        self.ow_img = Image.open(os.path.join(IMG_DIR, "ow_logo.png"))
+        self.ow_photo = ImageTk.PhotoImage(self.ow_img)
+
         #Loading role icons
         self.tank_img = Image.open(os.path.join(IMG_DIR, "Tank_icon.png"))
         self.tank_photo = ImageTk.PhotoImage(self.tank_img)
@@ -82,23 +87,31 @@ class MyWindow(Tk):
 
 
         #list of acc
+        
         self.list_frame = Frame(self, bg="#858585", highlightbackground="white", highlightthickness=2)
         self.list_frame.grid(row=1, column=1, columnspan=1, sticky="new")      
         for column in range(7):
-            self.list_frame.grid_columnconfigure(column, weight=1)
+            if column == 0:
+                self.list_frame.grid_columnconfigure(column, weight=0)
+            else:
+                self.list_frame.grid_columnconfigure(column, weight=1)
+        
 
+        
         game = Label(self.list_frame, text="Game", fg="White", bg=self.bg_lightgray, font=("Calibri", 12))
         game.grid(column=1, row=0, padx=10)
         tag = Label(self.list_frame, text="Tag", fg="White", bg=self.bg_lightgray, font=("Calibri", 12))
         tag.grid(column=2, row=0, padx=10)
         acc = Button(self.list_frame, text="Account", fg="White", bg=self.bg_lightgray, font=("Calibri", 12), command=self.sort_alpha)
         acc.grid(column=3, row=0, padx=40)
-        tank = Button(self.list_frame, image=self.tank_photo, fg="White", bg=self.bg_lightgray, font=("Calibri", 12), command=self.sort_tank)
+        tank = Button(self.list_frame, image=self.tank_photo, border=0, bg=self.bg_lightgray, command=self.sort_tank)
         tank.grid(column=4, row=0, padx=40)
-        dps = Button(self.list_frame, image=self.damage_photo, fg="White", bg=self.bg_lightgray, font=("Calibri", 12), command=self.sort_dps)
+        dps = Button(self.list_frame, image=self.damage_photo, border=0, bg=self.bg_lightgray, command=self.sort_dps)
         dps.grid(column=5, row=0, padx=40)
-        supp = Button(self.list_frame, image=self.support_photo, fg="White", bg=self.bg_lightgray, font=("Calibri", 12), command=self.sort_supp)
+        supp = Button(self.list_frame, image=self.support_photo, border=0, bg=self.bg_lightgray, command=self.sort_supp)
         supp.grid(column=6, row=0, padx=40)
+        owner = Button(self.list_frame, text="Owner", border=0, bg=self.bg_lightgray, font=("Calibri", 12), command=self.sort_supp)
+
 
         self.populate_grid(self.acc_list)        #Populate with default list
 
@@ -109,7 +122,6 @@ class MyWindow(Tk):
         self.title("Overwatch Rank Calculator")
         self.configure(bg="#333333", padx=20, pady=20)
         self.geometry("1920x1080")
-        
 
 
 
@@ -139,16 +151,7 @@ class MyWindow(Tk):
             tier_damage,
             tier_support
         ]
-        curr_row = self.list_row_counter
-
-        # Create new row for each acc
-        for col, content in enumerate(row_data[:-3]):
-            button = Button(self.list_frame, text="X", fg="White", bg=self.bg_lightgray, font=("Calibri", 12), command=lambda r=curr_row: self.delete_acc(r))    #delete button
-            button.grid(row=curr_row, column=0, sticky="nsew")
-            label = Label(self.list_frame, text=content, fg="White", bg=self.bg_lightgray, font=("Calibri", 12))
-            label.grid(row=curr_row, column=col+1, sticky="nsew")
-        self.list_row_counter += 1
-        self.list_frame.grid_rowconfigure(curr_row, weight=1)
+        self._create_row_widgets(row_data)
         self.save_file(row_data)
         
 
@@ -381,8 +384,16 @@ class MyWindow(Tk):
     # Seperate function to avoid infinite calls from populate_grid
     def _create_row_widgets(self, row_data):
         curr_row = self.list_row_counter
-        button = Button(self.list_frame, text="X", fg="White", bg=self.bg_lightgray, font=("Calibri", 15), command=lambda r=curr_row: self.delete_acc(r))
-        button.grid(row=curr_row, column=0, sticky="nsew")
+        button = Button(self.list_frame, 
+                        image=self.cross_photo,
+                        bg=self.bg_lightgray, 
+                        font=("Calibri", 15), 
+                        highlightthickness=2,
+                        highlightbackground="#DB4F4F",
+                        activeforeground=self.bg_lightgray,
+                        border=0,
+                        command=lambda r=curr_row: self.delete_acc(r))
+        button.grid(row=curr_row, column=0)
 
         # Create new row for each acc
         for col, content in enumerate(row_data):
@@ -393,11 +404,12 @@ class MyWindow(Tk):
             cell_frame.grid(row=curr_row, column=grid_col, sticky="nsew")
 
             # seperating rank and tier in the rank name
-            if " " in content:
-                rank_name, tier = content.split()
-            else:
-                rank_name = content.upper()
-                tier = None
+            if isinstance(content, str):
+                if " " in content:
+                    rank_name, tier = content.split()
+                else:
+                    rank_name = content.upper()
+                    tier = None
             
             # Putting the right icon image
             icon = None
@@ -423,13 +435,19 @@ class MyWindow(Tk):
                 container_frame = Frame(cell_frame, bg="#858585")
                 container_frame.pack(expand=True)
 
-                icon_label = Label(container_frame, image=icon, bg=self.bg_lightgray)
+                icon_label = Button(container_frame, 
+                                    image=icon, 
+                                    bg=self.bg_lightgray,
+                                    border=0)
                 icon_label.pack(side="left", padx=0, pady=0)
                 icon_label.image = icon
 
                 text_label = Label(container_frame, text=tier, fg="White", bg=self.bg_lightgray, font=("Calibri", 12, "bold"))
                 text_label.pack(side="left", padx=2, pady=0)
 
+            elif content == "OW":
+                label = Label(cell_frame, image=self.ow_photo, bg=self.bg_lightgray,)
+                label.pack(expand=True)
             else:
                 label = Label(cell_frame, text=content, fg="White", bg=self.bg_lightgray, font=("Calibri", 12))
                 label.pack(expand=True)
