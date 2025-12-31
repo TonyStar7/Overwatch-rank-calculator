@@ -10,9 +10,9 @@ if project_root not in sys.path:
 
 from Src.app import MyWindow
 
+
 if __name__ == "__main__":  
     window = MyWindow()
     window.mainloop()
-    
 
 

@@ -3,6 +3,7 @@ import json
 import os
 from PIL import Image, ImageTk
 from .api_client import *
+import time
 
 class MyWindow(Tk):
     def __init__(self):
@@ -65,6 +66,7 @@ class MyWindow(Tk):
 
         #row for accs
         self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
 
         self.add_frame = Frame(self, bg="#333333")
         self.add_frame.grid(row=0, column=0, sticky="nsew") #Put in grid on the left
@@ -102,18 +104,30 @@ class MyWindow(Tk):
         game.grid(column=1, row=0, padx=10)
         tag = Label(self.list_frame, text="Tag", fg="White", bg=self.bg_lightgray, font=("Calibri", 12))
         tag.grid(column=2, row=0, padx=10)
-        acc = Button(self.list_frame, text="Account", fg="White", bg=self.bg_lightgray, font=("Calibri", 12), command=self.sort_alpha)
+        acc = Button(self.list_frame, text="Accounts", fg="White",cursor="hand2", bg=self.bg_lightgray, font=("Calibri", 12), command=self.sort_alpha)
         acc.grid(column=3, row=0, padx=40)
-        tank = Button(self.list_frame, image=self.tank_photo, border=0, bg=self.bg_lightgray, command=self.sort_tank)
+        tank = Button(self.list_frame, image=self.tank_photo, cursor="hand2",border=0, bg=self.bg_lightgray, command=self.sort_tank)
         tank.grid(column=4, row=0, padx=40)
-        dps = Button(self.list_frame, image=self.damage_photo, border=0, bg=self.bg_lightgray, command=self.sort_dps)
+        dps = Button(self.list_frame, image=self.damage_photo, cursor="hand2", border=0, bg=self.bg_lightgray, command=self.sort_dps)
         dps.grid(column=5, row=0, padx=40)
-        supp = Button(self.list_frame, image=self.support_photo, border=0, bg=self.bg_lightgray, command=self.sort_supp)
+        supp = Button(self.list_frame, image=self.support_photo, cursor="hand2",border=0, bg=self.bg_lightgray, command=self.sort_supp)
         supp.grid(column=6, row=0, padx=40)
-        owner = Button(self.list_frame, text="Owner", border=0, bg=self.bg_lightgray, font=("Calibri", 12), command=self.sort_supp)
+        owner = Button(self.list_frame, text="Owner", border=0, cursor="hand2",bg=self.bg_lightgray, fg="White", font=("Calibri", 12), command=self.sort_owner)
+        owner.grid(column=7, row=0, padx=40)
+        
+
+
+
+        self.squad_frame = Frame(self, bg="#858585", highlightbackground="white", highlightthickness=2)
+        self.squad_frame.grid(row=2, column=1, columnspan=1, sticky="new")
+
+        for column in range(5):
+            self.squad_frame.grid_columnconfigure(column, weight=1)
+            self.squad_frame.grid_rowconfigure(4, weight=1)
 
 
         self.populate_grid(self.acc_list)        #Populate with default list
+        
 
         self.add_entry.bind("<FocusIn>", self.add_entry_click_delete)
         
@@ -122,6 +136,7 @@ class MyWindow(Tk):
         self.title("Overwatch Rank Calculator")
         self.configure(bg="#333333", padx=20, pady=20)
         self.geometry("1920x1080")
+        
 
 
 
@@ -138,6 +153,7 @@ class MyWindow(Tk):
         tier_damage = role_data["damage"]["tier"] if damage not in ["UNRANKED", "PRIVATE"] else 0
         support= rank_info(player_data, "support")
         tier_support = role_data["support"]["tier"] if support not in ["UNRANKED", "PRIVATE"] else 0
+        owner = "N/A"
         
         # Put infos in a list
         row_data = [
@@ -149,7 +165,8 @@ class MyWindow(Tk):
             support,
             tier_tank,
             tier_damage,
-            tier_support
+            tier_support,
+            owner
         ]
         self._create_row_widgets(row_data)
         self.save_file(row_data)
@@ -228,6 +245,11 @@ class MyWindow(Tk):
             reverse = True
         )
         self.populate_grid(self.sub_acc_list)
+
+
+    def sort_owner(self):
+        self.sub_acc_list = sorted(self.sub_acc_list, key=lambda account: account["owner"])
+        self.populate_grid(self.sub_acc_list)
         
 
     def refresh(self):
@@ -236,6 +258,7 @@ class MyWindow(Tk):
             clean_tag = account["Tag"].replace("#", "")
             player_id = f"{account["username"]}-{clean_tag}"
             player_data = get_ow_player_data(player_id)
+            owner = account["owner"]
 
             if player_data is None:
                 print(f"Skipping update for {player_id}. Keeping old data.")
@@ -266,7 +289,8 @@ class MyWindow(Tk):
                     "support": support,
                     "tier_tank": tier_tank,
                     "tier_damage": tier_damage,
-                    "tier_support": tier_support
+                    "tier_support": tier_support,
+                    "owner": owner
                 }
                 updated_acc_list.append(updated_data)
             except KeyError as e:
@@ -308,24 +332,30 @@ class MyWindow(Tk):
         self.populate_grid(self.sub_acc_list)
         
 
-    #auto delete default text of entry when clicked
-    def add_entry_click_delete(self, event):
-        if self.add_entry.get() == "Example : TonyStar#21880":
-            self.add_entry.delete(0, END)
+    def change_color(self, button, row_i, column_i):
+        curr_color = button.cget("bg")
+        if curr_color == self.bg_lightgray:
+            new_color = "White"
+            fg_color = "Black"
+            target_color = "White"
+        else:
+            new_color = self.bg_lightgray
+            fg_color = "White"
+            target_color = self.bg_lightgray
+        button.config(bg=new_color, fg=fg_color)
 
-    #add default text to add_entry
-    def add_entry_default_text(self, event):
-        if self.add_entry.get() == "":
-            self.account.set("Example : TonyStar#21880")
-            self.add_entry.config(fg="#858585")
+        if column_i == 3:
+            for target_col in range(column_i + 1, column_i + 4):
+                widgets = self.list_frame.grid_slaves(row=row_i, column=target_col)
+            
+                if widgets:
+                    cell_frame = widgets[0]
+                    inner_frame = cell_frame.winfo_children()[0] # icon frame
+                
+                    if inner_frame.winfo_children():
+                        slave_button = inner_frame.winfo_children()[0] #icon button
+                        slave_button.config(bg=target_color)
     
-    def global_click(self, event):
-        widget = event.widget
-        if widget != self.add_entry:
-            self.add_entry_default_text(event)
-            self.focus()
-
-
     # Saving data in a JSON FILE
     def save_file(self, data):
         write_data = {
@@ -337,7 +367,8 @@ class MyWindow(Tk):
             "support": data[5],
             "tier_tank": data[6],
             "tier_damage": data[7],
-            "tier_support": data[8]
+            "tier_support": data[8],
+            "owner": data[9]
         }
         tag_exists = any(acc['Tag'] == write_data['Tag'] for acc in self.acc_list)
         if not tag_exists:
@@ -377,6 +408,7 @@ class MyWindow(Tk):
             player_data["tank"],
             player_data["dps"],
             player_data["support"],
+            player_data["owner"]
         ]
             self._create_row_widgets(row_data)
         
@@ -392,6 +424,7 @@ class MyWindow(Tk):
                         highlightbackground="#DB4F4F",
                         activeforeground=self.bg_lightgray,
                         border=0,
+                        cursor="hand2",
                         command=lambda r=curr_row: self.delete_acc(r))
         button.grid(row=curr_row, column=0)
 
@@ -404,7 +437,7 @@ class MyWindow(Tk):
             cell_frame.grid(row=curr_row, column=grid_col, sticky="nsew")
 
             # seperating rank and tier in the rank name
-            if isinstance(content, str):
+            if isinstance(content, str):        # if is a str
                 if " " in content:
                     rank_name, tier = content.split()
                 else:
@@ -435,22 +468,70 @@ class MyWindow(Tk):
                 container_frame = Frame(cell_frame, bg="#858585")
                 container_frame.pack(expand=True)
 
-                icon_label = Button(container_frame, 
+                icon_button = Button(container_frame, 
                                     image=icon, 
                                     bg=self.bg_lightgray,
-                                    border=0)
-                icon_label.pack(side="left", padx=0, pady=0)
-                icon_label.image = icon
+                                    border=0,
+                                    cursor="hand2")
+                icon_button.config(command=lambda b=icon_button, r=curr_row, c=grid_col: self.change_color(b, r, c))
+                icon_button.pack(side="left")
+                icon_button.image = icon
 
-                text_label = Label(container_frame, text=tier, fg="White", bg=self.bg_lightgray, font=("Calibri", 12, "bold"))
+                text_label = Label(container_frame, 
+                                    text=tier, 
+                                    fg="White", 
+                                    bg=self.bg_lightgray, 
+                                    font=("Calibri", 12, "bold"))
                 text_label.pack(side="left", padx=2, pady=0)
 
             elif content == "OW":
                 label = Label(cell_frame, image=self.ow_photo, bg=self.bg_lightgray,)
                 label.pack(expand=True)
+            elif col == 2: # acc column
+                acc_button = Button(cell_frame, 
+                                    text=content, 
+                                    fg="White", 
+                                    font=("Calibri", 13, "bold"), 
+                                    bg=self.bg_lightgray, 
+                                    border=0,
+                                    cursor="hand2")
+                acc_button.config(command=lambda b=acc_button, r=curr_row, c=grid_col: self.change_color(b, r, c))
+                acc_button.pack(expand=True)
+            elif col == len(row_data)-1:    # owner column
+                owner_label = Label(cell_frame,
+                                        text=content, 
+                                        fg="White", 
+                                        font=("Calibri", 12), 
+                                        bg=self.bg_lightgray, 
+                                        border=0)
+                owner_label.pack(expand=True)
             else:
-                label = Label(cell_frame, text=content, fg="White", bg=self.bg_lightgray, font=("Calibri", 12))
+                label = Label(cell_frame, 
+                                text=content, 
+                                fg="White", 
+                                bg=self.bg_lightgray, 
+                                font=("Calibri", 12))
                 label.pack(expand=True)
         
         self.list_row_counter += 1
         self.list_frame.grid_rowconfigure(curr_row, weight=1)
+
+
+    def global_click(self, event):
+        widget = event.widget
+        if widget != self.add_entry:
+            self.add_entry_default_text(event)
+            self.focus()
+
+    #add default text to add_entry
+    def add_entry_default_text(self, event):
+        if self.add_entry.get() == "":
+            self.account.set("Example : TonyStar#21880")
+            self.add_entry.config(fg="#858585")
+
+
+    #auto delete default text of entry when clicked
+    def add_entry_click_delete(self, event):
+        if self.add_entry.get() == "Example : TonyStar#21880":
+            self.add_entry.delete(0, END)
+
