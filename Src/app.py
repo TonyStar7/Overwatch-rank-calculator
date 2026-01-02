@@ -17,6 +17,12 @@ class MyWindow(Tk):
         self.bg_lightgray ="#858585"
         self.account = StringVar(value="Example : TonyStar#21880")
 
+        self.role_list = []
+        self.selected_accounts = []
+        self.owner_list = []
+        self.max_range_tuple = None
+        self.min_range_tuple = None
+
         self.RANK_ORDER = {
             "BRONZE": 1,
             "SILVER": 2,
@@ -28,6 +34,18 @@ class MyWindow(Tk):
             "CHAMPION": 8,
             "UNRANKED": 0,
         }
+
+        self.RANKS = [
+            "BRONZE",
+            "SILVER",
+            "GOLD",
+            "PLATINUM",
+            "DIAMOND",
+            "MASTER",
+            "GRANDMASTER",
+            "CHAMPION"
+        ]
+        
 
         self.load_file()
 
@@ -331,18 +349,32 @@ class MyWindow(Tk):
         self.list_frame.update_idletasks()
         self.populate_grid(self.sub_acc_list)
         
-
+    # Function to change the bg of the button when pressed (select function)
     def change_color(self, button, row_i, column_i):
         curr_color = button.cget("bg")
         if curr_color == self.bg_lightgray:
             new_color = "White"
             fg_color = "Black"
             target_color = "White"
+            username_widget = self.list_frame.grid_slaves(row=row_i, column=3)
+            if username_widget:
+                username_frame = username_widget[0]
+                if isinstance(username_frame, Frame):
+                    username_button = username_frame.winfo_children()
+                    if username_button:
+                        username = username_button[0].cget("text")
+            role_name = button.role_name
+            role_rank = button.rank
+            tier = int(button.rank_tier)
+            self.rank_range(username, role_rank, tier, role_name)
+
         else:
             new_color = self.bg_lightgray
             fg_color = "White"
             target_color = self.bg_lightgray
         button.config(bg=new_color, fg=fg_color)
+        
+        
 
         if column_i == 3:
             for target_col in range(column_i + 1, column_i + 4):
@@ -467,13 +499,19 @@ class MyWindow(Tk):
             if icon is not None and tier is not None:
                 container_frame = Frame(cell_frame, bg="#858585")
                 container_frame.pack(expand=True)
+                role_map = {4: "tank", 5: "dps", 6: "support"}
+                current_role = role_map.get(grid_col, "unknown")
 
                 icon_button = Button(container_frame, 
-                                    image=icon, 
+                                    image=icon,
+                                    text=rank_name,
                                     bg=self.bg_lightgray,
                                     border=0,
                                     cursor="hand2")
                 icon_button.config(command=lambda b=icon_button, r=curr_row, c=grid_col: self.change_color(b, r, c))
+                icon_button.rank_tier = tier
+                icon_button.rank = rank_name
+                icon_button.role_name = current_role
                 icon_button.pack(side="left")
                 icon_button.image = icon
 
@@ -535,3 +573,55 @@ class MyWindow(Tk):
         if self.add_entry.get() == "Example : TonyStar#21880":
             self.add_entry.delete(0, END)
 
+    def rank_tuple(self, rank, tier):
+        return (self.RANK_ORDER.get(rank.upper(), 0), tier)
+    
+    def display_squad(self, selected_accounts):
+        print("\n=== Current squad ===")
+        for username, role_rank, tier, role_name  in selected_accounts:
+            print(f"  • {username:15} ({role_name} {role_rank} {tier})")
+        print("=" * 30)
+
+    def rank_range(self, username, role_rank, tier, role_name):
+        self.selected_accounts.append((username, role_rank, tier, role_name))
+        self.owner_list.append(username)
+        self.role_list.append(role_rank)
+        
+        if role_rank in ["MASTER", "GRANDMASTER", "CHAMPION"]:
+            range_acc = 3
+        elif role_rank == "DIAMOND":
+            range_max = 3
+            range_min = 5
+        elif role_rank in ["BRONZE", "SILVER", "GOLD", "PLATINUM"]:
+            range_acc = 5
+
+        tier_up = tier - (range_max if role_rank == "DIAMOND" else range_acc)
+        rank_up = 0
+
+        if tier_up < 1:
+            tier_up += 5
+            rank_up = 1
+        
+        if rank_up == 0:
+            possible_max = role_rank + f" {tier_up}"
+            print(f"Possible maximum rank is : {possible_max}")
+        else:
+            possible_max = self.RANKS[self.RANKS.index(role_rank) + 1] + f" {tier_up}"
+            print(f"Possible maximum rank is : {possible_max}")
+        tier_down = tier + (range_min if role_rank == "DIAMOND" else range_acc)
+        rank_down = 0
+
+        if tier_down > 5:
+            rank_down = -1
+            tier_down -= 5
+
+        if rank_down == 0:
+            possible_min = role_rank + f" {tier_down}"
+            print(f"Possible minimum rank is : {possible_min}")
+        else:
+            possible_min = self.RANKS[self.RANKS.index(role_rank) - 1] + f" {tier_down}"
+            print(f"Possible minimum rank is : {possible_min}")
+        self.max_range_tuple = self.rank_tuple(possible_max.split()[0], possible_max.split()[1])
+        self.min_range_tuple = self.rank_tuple(possible_min.split()[0], possible_min.split()[1])
+
+        self.display_squad(self.selected_accounts)
