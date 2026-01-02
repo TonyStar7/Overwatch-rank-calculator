@@ -352,26 +352,28 @@ class MyWindow(Tk):
     # Function to change the bg of the button when pressed (select function)
     def change_color(self, button, row_i, column_i):
         curr_color = button.cget("bg")
+        username_widget = self.list_frame.grid_slaves(row=row_i, column=3)
+        if username_widget:
+            username_frame = username_widget[0]
+            if isinstance(username_frame, Frame):
+                username_button = username_frame.winfo_children()
+                if username_button:
+                    username = username_button[0].cget("text")
+        role_name = button.role_name
+        role_rank = button.rank
+        tier = int(button.rank_tier)
+        
         if curr_color == self.bg_lightgray:
             new_color = "White"
             fg_color = "Black"
             target_color = "White"
-            username_widget = self.list_frame.grid_slaves(row=row_i, column=3)
-            if username_widget:
-                username_frame = username_widget[0]
-                if isinstance(username_frame, Frame):
-                    username_button = username_frame.winfo_children()
-                    if username_button:
-                        username = username_button[0].cget("text")
-            role_name = button.role_name
-            role_rank = button.rank
-            tier = int(button.rank_tier)
             self.rank_range(username, role_rank, tier, role_name)
-
         else:
             new_color = self.bg_lightgray
             fg_color = "White"
             target_color = self.bg_lightgray
+            self.selected_accounts.remove((username, role_rank, tier, role_name))
+            self.display_squad(self.selected_accounts)
         button.config(bg=new_color, fg=fg_color)
         
         
