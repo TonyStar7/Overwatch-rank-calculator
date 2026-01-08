@@ -5,10 +5,10 @@
         "username": "TonyStar",
         "tank": "MASTER 1",
         "dps": "GRANDMASTER 5",
-        "support": "MASTER 4",
+        "support": "MASTER 3",
         "tier_tank": 1,
         "tier_damage": 5,
-        "tier_support": 4,
+        "tier_support": 3,
         "owner": "Tony"
     },
     {
@@ -16,10 +16,10 @@
         "Tag": "#21201",
         "username": "Frieren",
         "tank": "MASTER 4",
-        "dps": "MASTER 1",
+        "dps": "GRANDMASTER 5",
         "support": "MASTER 3",
         "tier_tank": 4,
-        "tier_damage": 1,
+        "tier_damage": 5,
         "tier_support": 3,
         "owner": "Tony"
     },
@@ -29,10 +29,10 @@
         "username": "AlyThde",
         "tank": "UNRANKED",
         "dps": "UNRANKED",
-        "support": "DIAMOND 1",
+        "support": "MASTER 5",
         "tier_tank": 0,
         "tier_damage": 0,
-        "tier_support": 1,
+        "tier_support": 5,
         "owner": "Alyssia"
     },
     {
@@ -87,12 +87,12 @@
         "Game": "OW",
         "Tag": "#21547",
         "username": "Zapp",
-        "tank": "MASTER 4",
+        "tank": "MASTER 3",
         "dps": "MASTER 2",
-        "support": "MASTER 3",
-        "tier_tank": 4,
+        "support": "MASTER 2",
+        "tier_tank": 3,
         "tier_damage": 2,
-        "tier_support": 3,
+        "tier_support": 2,
         "owner": "Sunny"
     },
     {

@@ -350,8 +350,12 @@ class MyWindow(Tk):
         self.populate_grid(self.sub_acc_list)
         
     # Function to change the bg of the button when pressed (select function)
-    def change_color(self, button, row_i, column_i):
-        curr_color = button.cget("bg")
+    def squad_maker(self, button, row_i, column_i):
+        nb_owner = len(self.owner_list)
+        role_name = button.role_name
+        role_rank = button.rank
+        tier = int(button.rank_tier)
+        owner = button.owner
         username_widget = self.list_frame.grid_slaves(row=row_i, column=3)
         if username_widget:
             username_frame = username_widget[0]
@@ -359,25 +363,101 @@ class MyWindow(Tk):
                 username_button = username_frame.winfo_children()
                 if username_button:
                     username = username_button[0].cget("text")
-        role_name = button.role_name
-        role_rank = button.rank
-        tier = int(button.rank_tier)
+
+        curr_color = button.cget("bg")
+        self.change_color(button, row_i, column_i)
+        selected_tuple = (username, role_rank, tier, role_name)
+
+        if curr_color == "White":
+        # Always allow turning off
+            button.config(bg=self.bg_lightgray, fg="White")
         
+            target_idx = -1
+            for i, acc in enumerate(self.selected_accounts):
+                if acc[0] == username and acc[3] == role_name:
+                    target_idx = i
+                    break
+
+            # 3. If found, remove exactly that entry from all tracking lists
+            if target_idx != -1:
+                self.selected_accounts.pop(target_idx)
+                self.owner_list.pop(target_idx)
+                self.role_list.pop(target_idx)
+                print(f"Removed {username} from squad. Remaining owners: {self.owner_list}")
+
+            """ if selected_tuple in self.selected_accounts:
+                self.selected_accounts.remove(selected_tuple)
+            if owner in self.owner_list:
+                self.owner_list.remove(owner)
+                print(self.owner_list)
+            if role_name in self.role_list:
+                self.role_list.remove(role_name)
+                print(self.role_list) """
+            
+            # Reset range if the squad is now empty
+            if not self.selected_accounts:
+                self.min_range_tuple = None
+                self.max_range_tuple = None
+
+            else:
+                first_acc = self.selected_accounts[0]
+                self.selected_accounts.pop(0)
+                temp_owner = self.owner_list.pop(0)
+                self.role_list.pop(0)
+                self.rank_range(temp_owner, first_acc[0], first_acc[1], first_acc[2], first_acc[3])
+            self.display_squad(self.selected_accounts)
+            return # Exit early
+
+        if not self.selected_accounts:
+            button.config(bg="White", fg="Black")
+            # Note: rank_range appends to lists and sets min/max tuples internally
+            self.rank_range(owner, username, role_rank, tier, role_name)
+            return
+
+        # CASE B: Adding more people (Validation required)
+        if owner in self.owner_list:
+            print(f"Owner {owner} already has a role in this squad.")
+            return
+
+        if not self.can_add_role(self.role_list, role_name):
+            print(f"Role {role_name} is full.")
+            return
+
+        if nb_owner >= 1:
+            self.squad_adder(button, username, role_rank, tier, role_name)
+
+
+
+    def squad_adder(self, button, username, role_rank, tier, role_name):
+        if button.owner not in self.owner_list:
+            if self.can_add_role(self.role_list, role_name):
+                second_tuple = self.rank_tuple(role_rank, tier)
+                if self.min_range_tuple <= second_tuple <= self.max_range_tuple:
+                    self.selected_accounts.append((username, role_rank, tier, role_name))
+                    self.owner_list.append(button.owner)
+                    self.role_list.append(role_name)
+                    print(f"Account added for {username} {role_name} {role_rank} {tier} ")
+                    self.display_squad(self.selected_accounts)
+                else:
+                    print(f"{username} {role_name} not eligible for squad. Tuple: {second_tuple}")
+            else:
+                print(f"Role {role_name} already full")
+        else:
+            print(f"Owner already chosen")
+
+
+    def change_color(self, button, row_i, column_i):
+        curr_color = button.cget("bg")
         if curr_color == self.bg_lightgray:
             new_color = "White"
             fg_color = "Black"
             target_color = "White"
-            self.rank_range(username, role_rank, tier, role_name)
         else:
             new_color = self.bg_lightgray
             fg_color = "White"
             target_color = self.bg_lightgray
-            self.selected_accounts.remove((username, role_rank, tier, role_name))
-            self.display_squad(self.selected_accounts)
         button.config(bg=new_color, fg=fg_color)
-        
-        
-
+        # Flex (incomplete)
         if column_i == 3:
             for target_col in range(column_i + 1, column_i + 4):
                 widgets = self.list_frame.grid_slaves(row=row_i, column=target_col)
@@ -389,7 +469,8 @@ class MyWindow(Tk):
                     if inner_frame.winfo_children():
                         slave_button = inner_frame.winfo_children()[0] #icon button
                         slave_button.config(bg=target_color)
-    
+
+
     # Saving data in a JSON FILE
     def save_file(self, data):
         write_data = {
@@ -450,6 +531,7 @@ class MyWindow(Tk):
     # Seperate function to avoid infinite calls from populate_grid
     def _create_row_widgets(self, row_data):
         curr_row = self.list_row_counter
+        owner = row_data[-1]
         button = Button(self.list_frame, 
                         image=self.cross_photo,
                         bg=self.bg_lightgray, 
@@ -501,6 +583,7 @@ class MyWindow(Tk):
             if icon is not None and tier is not None:
                 container_frame = Frame(cell_frame, bg="#858585")
                 container_frame.pack(expand=True)
+                
                 role_map = {4: "tank", 5: "dps", 6: "support"}
                 current_role = role_map.get(grid_col, "unknown")
 
@@ -510,10 +593,11 @@ class MyWindow(Tk):
                                     bg=self.bg_lightgray,
                                     border=0,
                                     cursor="hand2")
-                icon_button.config(command=lambda b=icon_button, r=curr_row, c=grid_col: self.change_color(b, r, c))
+                icon_button.config(command=lambda b=icon_button, r=curr_row, c=grid_col: self.squad_maker(b, r, c))
                 icon_button.rank_tier = tier
                 icon_button.rank = rank_name
                 icon_button.role_name = current_role
+                icon_button.owner = owner
                 icon_button.pack(side="left")
                 icon_button.image = icon
 
@@ -576,18 +660,19 @@ class MyWindow(Tk):
             self.add_entry.delete(0, END)
 
     def rank_tuple(self, rank, tier):
-        return (self.RANK_ORDER.get(rank.upper(), 0), tier)
+        return (self.RANK_ORDER.get(rank.upper(), 0), 6 - int(tier))
     
     def display_squad(self, selected_accounts):
         print("\n=== Current squad ===")
+        print(f"Current range: minimum = {self.min_range_tuple}, maximum = {self.max_range_tuple}")
         for username, role_rank, tier, role_name  in selected_accounts:
             print(f"  • {username:15} ({role_name} {role_rank} {tier})")
         print("=" * 30)
 
-    def rank_range(self, username, role_rank, tier, role_name):
+    def rank_range(self, owner, username, role_rank, tier, role_name):
         self.selected_accounts.append((username, role_rank, tier, role_name))
-        self.owner_list.append(username)
-        self.role_list.append(role_rank)
+        self.owner_list.append(owner)
+        self.role_list.append(role_name)
         
         if role_rank in ["MASTER", "GRANDMASTER", "CHAMPION"]:
             range_acc = 3
@@ -626,4 +711,11 @@ class MyWindow(Tk):
         self.max_range_tuple = self.rank_tuple(possible_max.split()[0], possible_max.split()[1])
         self.min_range_tuple = self.rank_tuple(possible_min.split()[0], possible_min.split()[1])
 
-        self.display_squad(self.selected_accounts)
+        #self.display_squad(self.selected_accounts)
+
+
+    def can_add_role(self, role_list, new_role):
+        if new_role == "tank":
+            return role_list.count("tank") < 1
+        else:
+            return role_list.count(new_role) < 2
