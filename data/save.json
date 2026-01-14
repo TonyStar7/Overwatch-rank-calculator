@@ -17,10 +17,10 @@
         "username": "Frieren",
         "tank": "MASTER 4",
         "dps": "GRANDMASTER 5",
-        "support": "MASTER 3",
+        "support": "MASTER 4",
         "tier_tank": 4,
         "tier_damage": 5,
-        "tier_support": 3,
+        "tier_support": 4,
         "owner": "Tony"
     },
     {
@@ -29,10 +29,10 @@
         "username": "AlyThde",
         "tank": "UNRANKED",
         "dps": "UNRANKED",
-        "support": "MASTER 5",
+        "support": "DIAMOND 2",
         "tier_tank": 0,
         "tier_damage": 0,
-        "tier_support": 5,
+        "tier_support": 2,
         "owner": "Alyssia"
     },
     {
