@@ -125,13 +125,13 @@ class MyWindow(Tk):
         tag.grid(column=2, row=0, padx=10)
         acc = Button(self.list_frame, text="Accounts", fg="White",cursor="hand2", bg=self.bg_lightgray, font=("Calibri", 12), command=self.sort_alpha)
         acc.grid(column=3, row=0, padx=40)
-        tank = Button(self.list_frame, image=self.tank_photo, cursor="hand2",border=0, bg=self.bg_lightgray, command=self.sort_tank)
+        tank = Button(self.list_frame, image=self.tank_photo, cursor="hand2", bg=self.bg_lightgray, command=self.sort_tank)
         tank.grid(column=4, row=0, padx=40)
-        dps = Button(self.list_frame, image=self.damage_photo, cursor="hand2", border=0, bg=self.bg_lightgray, command=self.sort_dps)
+        dps = Button(self.list_frame, image=self.damage_photo, cursor="hand2", bg=self.bg_lightgray, command=self.sort_dps)
         dps.grid(column=5, row=0, padx=40)
-        supp = Button(self.list_frame, image=self.support_photo, cursor="hand2",border=0, bg=self.bg_lightgray, command=self.sort_supp)
+        supp = Button(self.list_frame, image=self.support_photo, cursor="hand2", bg=self.bg_lightgray, command=self.sort_supp)
         supp.grid(column=6, row=0, padx=40)
-        owner = Button(self.list_frame, text="Owner", border=0, cursor="hand2",bg=self.bg_lightgray, fg="White", font=("Calibri", 12), command=self.sort_owner)
+        owner = Button(self.list_frame, text="Owner", cursor="hand2",bg=self.bg_lightgray, fg="White", font=("Calibri", 12), command=self.sort_owner)
         owner.grid(column=7, row=0, padx=40)
         
 
@@ -400,7 +400,7 @@ class MyWindow(Tk):
                     p_min, p_max = self.rank_range(acc[1], acc[2])
                     self.global_min = max(self.global_min, p_min)
                     self.global_max = min(self.global_max, p_max)
-                    
+
             self.validate_buttons()
             self.display_squad(self.selected_accounts)
             return # Exit early
@@ -428,7 +428,6 @@ class MyWindow(Tk):
 
         if nb_owner >= 1:
             self.squad_adder(button, username, role_rank, tier, role_name)
-
 
 
     def squad_adder(self, button, username, role_rank, tier, role_name):
@@ -597,11 +596,18 @@ class MyWindow(Tk):
                 
                 role_map = {4: "tank", 5: "dps", 6: "support"}
                 current_role = role_map.get(grid_col, "unknown")
+                username = row_data[2]
+
+                is_selected = any(acc[0] == username and acc[3] == current_role for acc in self.selected_accounts)
+
+                bg_color = "White" if is_selected else self.bg_lightgray
+                fg_color = "Black" if is_selected else "White"
 
                 icon_button = Button(container_frame, 
                                     image=icon,
                                     text=rank_name,
-                                    bg=self.bg_lightgray,
+                                    bg=bg_color,
+                                    fg=fg_color,
                                     border=0,
                                     cursor="hand2")
                 icon_button.config(command=lambda b=icon_button, r=curr_row, c=grid_col: self.squad_maker(b, r, c))
@@ -651,6 +657,7 @@ class MyWindow(Tk):
         
         self.list_row_counter += 1
         self.list_frame.grid_rowconfigure(curr_row, weight=1)
+        self.validate_buttons()
 
 
 
@@ -757,5 +764,14 @@ class MyWindow(Tk):
             # Apply the state
             if owner_already_in or out_of_range or role_full:
                 btn.config(state="disabled")
-            else:
+                btn.config(bg="#404040")
+            elif not is_selected:
                 btn.config(state="normal")
+                btn.config(bg=self.bg_lightgray)
+
+
+    def reset(self):
+        self.role_list = []
+        self.selected_accounts = []
+        self.owner_list = []
+        self.role_buttons = []
