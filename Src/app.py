@@ -9,7 +9,8 @@ class MyWindow(Tk):
     def __init__(self):
         super().__init__()
 
-        self.json_file_path = os.path.join(os.getcwd(), "data", "save.json")
+        self.script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.json_file_path = os.path.join(self.script_dir, "..", "data", "save.json")
         self.IMG_DIR = os.path.join(project_root, "assets")
         self.acc_list = []
         self.sub_acc_list = []
