@@ -3,6 +3,7 @@ import json
 import os
 from PIL import Image, ImageTk
 from .api_client import *
+from tkinter import messagebox
 import time
 
 class MyWindow(Tk):
@@ -544,7 +545,7 @@ class MyWindow(Tk):
                         activeforeground=self.bg_lightgray,
                         border=0,
                         cursor="hand2",
-                        command=lambda r=curr_row: self.delete_acc(r))
+                        command=lambda r=curr_row: self.confirm_delete(r))
         button.grid(row=curr_row, column=0)
 
         # Create new row for each acc
@@ -670,6 +671,13 @@ class MyWindow(Tk):
     def add_entry_click_delete(self, event):
         if self.add_entry.get() == "Example : TonyStar#21880":
             self.add_entry.delete(0, END)
+
+    def confirm_delete(self, row):
+        confirm_pop = messagebox.askquestion(title="Delete account?", message="Are you sure you want to delete this account?")
+        print(confirm_pop)
+        if confirm_pop == "yes":
+            self.delete_acc(row)
+
 
 
 
