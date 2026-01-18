@@ -136,15 +136,6 @@ class MyWindow(Tk):
         
 
 
-
-        self.squad_frame = Frame(self, bg="#858585", highlightbackground="white", highlightthickness=2)
-        self.squad_frame.grid(row=2, column=1, columnspan=1, sticky="new")
-
-        for column in range(5):
-            self.squad_frame.grid_columnconfigure(column, weight=1)
-            self.squad_frame.grid_rowconfigure(4, weight=1)
-
-
         self.populate_grid(self.acc_list)        #Populate with default list
         
 
@@ -189,6 +180,7 @@ class MyWindow(Tk):
         ]
         self._create_row_widgets(row_data)
         self.save_file(row_data)
+        
         
 
 # Function when add button is clicked
@@ -758,13 +750,13 @@ class MyWindow(Tk):
                 if not (self.global_min <= curr_tuple <= self.global_max):
                     out_of_range = True
 
-            # Rule 3: Role Full check (Optional but recommended)
+            # Rule 3: Role Full check
             role_full = not is_selected and not self.can_add_role(self.role_list, btn.role_name)
 
             # Apply the state
             if owner_already_in or out_of_range or role_full:
                 btn.config(state="disabled")
-                btn.config(bg="#404040")
+                btn.config(bg="#000000")
             elif not is_selected:
                 btn.config(state="normal")
                 btn.config(bg=self.bg_lightgray)
