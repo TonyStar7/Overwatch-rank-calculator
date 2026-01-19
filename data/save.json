@@ -53,10 +53,10 @@
         "username": "MushMush",
         "tank": "DIAMOND 1",
         "dps": "DIAMOND 2",
-        "support": "MASTER 2",
+        "support": "MASTER 1",
         "tier_tank": 1,
         "tier_damage": 2,
-        "tier_support": 2,
+        "tier_support": 1,
         "owner": "Sunny"
     },
     {
@@ -99,10 +99,10 @@
         "Game": "OW",
         "Tag": "#21348",
         "username": "Nog",
-        "tank": "UNRANKED",
+        "tank": "GRANDMASTER 1",
         "dps": "MASTER 4",
         "support": "UNRANKED",
-        "tier_tank": 0,
+        "tier_tank": 1,
         "tier_damage": 4,
         "tier_support": 0,
         "owner": "William"

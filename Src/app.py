@@ -17,6 +17,8 @@ class MyWindow(Tk):
         self.sub_acc_list = []
         self.list_row_counter = 1
         self.bg_lightgray ="#858585"
+        self.bg_darkgray = "#4a4a4a"
+        self.bg_darklightgray = "#787878"
         self.account = StringVar(value="Example : TonyStar#21880")
 
         self.role_list = []
@@ -79,6 +81,8 @@ class MyWindow(Tk):
         self.silver_photo = ImageTk.PhotoImage(self.silver_img)
         self.bronze_img = Image.open(os.path.join(IMG_DIR, "Bronze_icon.png"))
         self.bronze_photo = ImageTk.PhotoImage(self.bronze_img)
+        """self.add_button_img = Image.open(os.path.join(IMG_DIR, "button_add-account.png"))
+        self.add_button_photo = ImageTk.PhotoImage(self.add_button_img)"""
 
         #header
         self.grid_columnconfigure(0, weight=0)
@@ -93,7 +97,7 @@ class MyWindow(Tk):
         self.add_frame.grid(row=0, column=0, sticky="nsew") #Put in grid on the left
 
         #init add button
-        self.add_button = Button(self.add_frame, text="Add account", command=self.added_acc)
+        self.add_button = Button(self.add_frame, text="Add account", cursor="hand2", bg="#249137", fg="White", command=self.added_acc)
         self.add_button.pack(side="right")
 
         #add account entry
@@ -121,20 +125,20 @@ class MyWindow(Tk):
         
 
         
-        game = Label(self.list_frame, text="Game", fg="White", bg=self.bg_lightgray, font=("Calibri", 12))
-        game.grid(column=1, row=0, padx=10)
-        tag = Label(self.list_frame, text="Tag", fg="White", bg=self.bg_lightgray, font=("Calibri", 12))
-        tag.grid(column=2, row=0, padx=10)
-        acc = Button(self.list_frame, text="Accounts", fg="White",cursor="hand2", bg=self.bg_lightgray, font=("Calibri", 12), command=self.sort_alpha)
-        acc.grid(column=3, row=0, padx=40)
-        tank = Button(self.list_frame, image=self.tank_photo, cursor="hand2", bg=self.bg_lightgray, command=self.sort_tank)
-        tank.grid(column=4, row=0, padx=40)
-        dps = Button(self.list_frame, image=self.damage_photo, cursor="hand2", bg=self.bg_lightgray, command=self.sort_dps)
-        dps.grid(column=5, row=0, padx=40)
-        supp = Button(self.list_frame, image=self.support_photo, cursor="hand2", bg=self.bg_lightgray, command=self.sort_supp)
-        supp.grid(column=6, row=0, padx=40)
-        owner = Button(self.list_frame, text="Owner", cursor="hand2",bg=self.bg_lightgray, fg="White", font=("Calibri", 12), command=self.sort_owner)
-        owner.grid(column=7, row=0, padx=40)
+        game = Label(self.list_frame, text="Game", fg="White", bg=self.bg_darkgray, font=("Calibri", 12))
+        game.grid(column=1, row=0, sticky="nsew")
+        tag = Label(self.list_frame, text="Tag", fg="White", bg=self.bg_darkgray, font=("Calibri", 12))
+        tag.grid(column=2, row=0, sticky="nsew")
+        acc = Button(self.list_frame, text="Accounts", fg="White",cursor="hand2", bg=self.bg_darkgray, font=("Calibri", 12), command=self.sort_alpha)
+        acc.grid(column=3, row=0, sticky="nsew")
+        tank = Button(self.list_frame, image=self.tank_photo, cursor="hand2", bg=self.bg_darkgray, command=self.sort_tank)
+        tank.grid(column=4, row=0, sticky="nsew")
+        dps = Button(self.list_frame, image=self.damage_photo, cursor="hand2", bg=self.bg_darkgray, command=self.sort_dps)
+        dps.grid(column=5, row=0, sticky="nsew")
+        supp = Button(self.list_frame, image=self.support_photo, cursor="hand2", bg=self.bg_darkgray, command=self.sort_supp)
+        supp.grid(column=6, row=0, sticky="nsew")
+        owner = Button(self.list_frame, text="Owner", cursor="hand2", bg=self.bg_darkgray, fg="White", font=("Calibri", 12), command=self.sort_owner)
+        owner.grid(column=7, row=0, sticky="nsew")
         
 
 
@@ -348,80 +352,69 @@ class MyWindow(Tk):
         
     # Function to change the bg of the button when pressed (select function)
     def squad_maker(self, button, row_i, column_i):
-        nb_owner = len(self.owner_list)
         role_name = button.role_name
         role_rank = button.rank
         tier = int(button.rank_tier)
         owner = button.owner
-        username_widget = self.list_frame.grid_slaves(row=row_i, column=3)
-        if username_widget:
-            username_frame = username_widget[0]
-            if isinstance(username_frame, Frame):
-                username_button = username_frame.winfo_children()
-                if username_button:
-                    username = username_button[0].cget("text")
+        username = button.username # Using the attribute we attached in _create_row_widgets
 
-        curr_color = button.cget("bg")
-        self.change_color(button, row_i, column_i)
-        selected_tuple = (username, role_rank, tier, role_name)
+        # 1. DATA-FIRST CHECK: Is this specific player/role already in the squad?
+        target_idx = -1
+        for i, acc in enumerate(self.selected_accounts):
+            if acc[0] == username and acc[3] == role_name:
+                target_idx = i
+                break
 
-        if curr_color == "White":
-        # Always allow turning off
-            button.config(bg=self.bg_lightgray, fg="White")      
-            target_idx = -1
-            for i, acc in enumerate(self.selected_accounts):
-                if acc[0] == username and acc[3] == role_name:
-                    target_idx = i
-                    break
-
-            # 3. If found, remove exactly that entry from all tracking lists
-            if target_idx != -1:
-                self.selected_accounts.pop(target_idx)
-                self.owner_list.pop(target_idx)
-                self.role_list.pop(target_idx)
-                print(f"Removed {username} from squad. Remaining owners: {self.owner_list}")
-
-            # Reset range if the squad is now empty
+        # CASE: DESELECTING (The account was found in the list)
+        if target_idx != -1:
+            # Remove from tracking lists
+            self.selected_accounts.pop(target_idx)
+            self.owner_list.pop(target_idx)
+            self.role_list.pop(target_idx)
+            
+            # Recalculate range based on remaining members
             if not self.selected_accounts:
                 self.global_min = None
                 self.global_max = None
-
             else:
+                # Re-initialize range with the first remaining person
                 first_acc = self.selected_accounts[0]
                 self.global_min, self.global_max = self.rank_range(first_acc[1], first_acc[2])
+                # Constrain range with all other remaining members
                 for i in range(1, len(self.selected_accounts)):
                     acc = self.selected_accounts[i]
                     p_min, p_max = self.rank_range(acc[1], acc[2])
                     self.global_min = max(self.global_min, p_min)
                     self.global_max = min(self.global_max, p_max)
 
-            self.validate_buttons()
             self.display_squad(self.selected_accounts)
-            return # Exit early
+            self.validate_buttons()
+            return 
 
+        # CASE: SELECTING (Account not in squad)
+        # Check if the owner already has a different role selected
+        if owner in self.owner_list:
+            print(f"Owner {owner} already has a role!")
+            return
+        
+        # Check if the role slot is available
+        if not self.can_add_role(self.role_list, role_name):
+            print(f"Role {role_name} is full!")
+            return
+
+        # Add to squad
         if not self.selected_accounts:
-            button.config(bg="White", fg="Black")
-            # Note: rank_range appends to lists and sets min/max tuples internally
+            # First person sets the initial range
             self.global_min, self.global_max = self.rank_range(role_rank, tier)
-
             self.selected_accounts.append((username, role_rank, tier, role_name))
             self.owner_list.append(owner)
             self.role_list.append(role_name)
-            self.display_squad(self.selected_accounts)
-            self.validate_buttons()
-            return
-
-        # CASE B: Adding more people (Validation required)
-        if owner in self.owner_list:
-            print(f"Owner {owner} already has a role in this squad.")
-            return
-
-        if not self.can_add_role(self.role_list, role_name):
-            print(f"Role {role_name} is full.")
-            return
-
-        if nb_owner >= 1:
+        else:
+            # Subsequent people must fit the range (handled by squad_adder)
             self.squad_adder(button, username, role_rank, tier, role_name)
+        
+        self.display_squad(self.selected_accounts)
+        self.validate_buttons()
 
 
     def squad_adder(self, button, username, role_rank, tier, role_name):
@@ -536,13 +529,18 @@ class MyWindow(Tk):
     def _create_row_widgets(self, row_data):
         curr_row = self.list_row_counter
         owner = row_data[-1]
+        if curr_row % 2 == 0:
+            row_color = self.bg_darklightgray
+        else:
+            row_color = self.bg_lightgray
+
         button = Button(self.list_frame, 
                         image=self.cross_photo,
-                        bg=self.bg_lightgray, 
+                        bg=row_color, 
                         font=("Calibri", 15), 
                         highlightthickness=2,
                         highlightbackground="#DB4F4F",
-                        activeforeground=self.bg_lightgray,
+                        activeforeground=row_color,
                         border=0,
                         cursor="hand2",
                         command=lambda r=curr_row: self.confirm_delete(r))
@@ -553,7 +551,7 @@ class MyWindow(Tk):
             grid_col = col + 1
             
             # cover old frame
-            cell_frame = Frame(self.list_frame, bg=self.bg_lightgray)
+            cell_frame = Frame(self.list_frame, bg=row_color)
             cell_frame.grid(row=curr_row, column=grid_col, sticky="nsew")
 
             # seperating rank and tier in the rank name
@@ -585,7 +583,7 @@ class MyWindow(Tk):
             
             # rank part
             if icon is not None and tier is not None:
-                container_frame = Frame(cell_frame, bg="#858585")
+                container_frame = Frame(cell_frame, bg=row_color)
                 container_frame.pack(expand=True)
                 
                 role_map = {4: "tank", 5: "dps", 6: "support"}
@@ -594,7 +592,7 @@ class MyWindow(Tk):
 
                 is_selected = any(acc[0] == username and acc[3] == current_role for acc in self.selected_accounts)
 
-                bg_color = "White" if is_selected else self.bg_lightgray
+                bg_color = "White" if is_selected else row_color
                 fg_color = "Black" if is_selected else "White"
 
                 icon_button = Button(container_frame, 
@@ -609,26 +607,29 @@ class MyWindow(Tk):
                 icon_button.rank = rank_name
                 icon_button.role_name = current_role
                 icon_button.owner = owner
-                icon_button.pack(side="left")
+                icon_button.username = row_data[2]
                 icon_button.image = icon
+                icon_button.default_bg = row_color
+
+                icon_button.pack(side="left")
                 self.role_buttons.append(icon_button)
 
                 text_label = Label(container_frame, 
                                     text=tier, 
                                     fg="White", 
-                                    bg=self.bg_lightgray, 
+                                    bg=row_color, 
                                     font=("Calibri", 12, "bold"))
                 text_label.pack(side="left", padx=2, pady=0)
 
             elif content == "OW":
-                label = Label(cell_frame, image=self.ow_photo, bg=self.bg_lightgray,)
+                label = Label(cell_frame, image=self.ow_photo, bg=row_color,)
                 label.pack(expand=True)
             elif col == 2: # acc column
                 acc_button = Button(cell_frame, 
                                     text=content, 
                                     fg="White", 
                                     font=("Calibri", 13, "bold"), 
-                                    bg=self.bg_lightgray, 
+                                    bg=row_color, 
                                     border=0,
                                     cursor="hand2")
                 acc_button.config(command=lambda b=acc_button, r=curr_row, c=grid_col: self.change_color(b, r, c))
@@ -638,14 +639,14 @@ class MyWindow(Tk):
                                         text=content, 
                                         fg="White", 
                                         font=("Calibri", 12), 
-                                        bg=self.bg_lightgray, 
+                                        bg=row_color, 
                                         border=0)
                 owner_label.pack(expand=True)
             else:
                 label = Label(cell_frame, 
                                 text=content, 
                                 fg="White", 
-                                bg=self.bg_lightgray, 
+                                bg=row_color, 
                                 font=("Calibri", 12))
                 label.pack(expand=True)
         
@@ -677,7 +678,6 @@ class MyWindow(Tk):
         print(confirm_pop)
         if confirm_pop == "yes":
             self.delete_acc(row)
-
 
 
 
@@ -744,13 +744,15 @@ class MyWindow(Tk):
         
 
     def validate_buttons(self):
+        
         for btn in self.role_buttons:
             # Get the rank tuple for this specific button
             curr_tuple = self.rank_tuple(btn.rank, btn.rank_tier)
             
             # Rule 1: Same Owner check
             # We only disable for owner if the button is NOT already selected
-            is_selected = btn.cget("bg") == "White"
+            is_selected = any(acc[0] == btn.username and acc[3] == btn.role_name 
+                        for acc in self.selected_accounts)
             owner_already_in = btn.owner in self.owner_list and not is_selected
             
             # Rule 2: Range check
@@ -763,12 +765,12 @@ class MyWindow(Tk):
             role_full = not is_selected and not self.can_add_role(self.role_list, btn.role_name)
 
             # Apply the state
-            if owner_already_in or out_of_range or role_full:
-                btn.config(state="disabled")
-                btn.config(bg="#000000")
-            elif not is_selected:
-                btn.config(state="normal")
-                btn.config(bg=self.bg_lightgray)
+            if is_selected:
+                btn.config(state="normal", bg="White", fg="Black")
+            elif owner_already_in or out_of_range or role_full:
+                btn.config(state="disabled", bg="#000000")
+            else:
+                btn.config(state="normal", bg=btn.default_bg, fg="White")
 
 
     def reset(self):
